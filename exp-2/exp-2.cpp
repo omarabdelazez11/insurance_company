@@ -14,7 +14,7 @@
 typedef struct {
     char username[50];
     char email[100];
-    char password_hash[65];
+    char password_hash[65];  // Adjusted length to store hashed password without OpenSSL
     char role[20];
 } User;
 
@@ -25,6 +25,7 @@ typedef struct {
     char start_date[20];
     char end_date[20];
     char beneficiary[100];
+    char owner[100];
 } Policy;
 
 typedef struct {
@@ -79,29 +80,7 @@ void saveData();
 void loadData();
 void hashPassword(const char* password, char* hash);
 void collectCustomerInfo();
-void start();
-
 
 int main (){
-  
     return 0;
-}
-
-void registerUser() {
-    if (num_users >= MAX_USERS) {
-        printf("Cannot register more users.\n");
-        return;
-    }
-    printf("Enter username: ");
-    scanf("%s", users[num_users].username);
-    printf("Enter email: ");
-    scanf("%s", users[num_users].email);
-    char password[50];
-    printf("Enter password: ");
-    scanf("%s", password);
-    hashPassword(password, users[num_users].password_hash);
-    printf("Enter role (admin/agent/customer): ");
-    scanf("%s", users[num_users].role);
-    num_users++;
-    printf("User registered successfully.\n");
 }
