@@ -1,0 +1,37 @@
+Formal Insurance Contract
+========================
+
+Customer Details:
+-----------------
+Name: 
+Age: 18
+Gender: male
+Occupation: kmf
+Contact Info: 101
+Previous Insurance: 0
+
+Policy Details:
+---------------
+Type: Car Insurance
+Coverage Amount: $200.00
+Premium: $1050.00 per monthly
+Duration: 20 years
+
+Financial Summary:
+-------------------
+Total Claims Cost: $0.00
+Total Operating Expenses: $0.00
+Profit: $21000.00
+
+Coverage Details:
+-----------------
+Covered: Natural disasters, Theft, Accidents
+Not Covered: Intentional damages, Negligence (e.g., leaving keys in the car),
+             Fraudulent claims
+
+Approval:
+---------
+I, , hereby acknowledge that I have reviewed the terms of this insurance contract and understand the coverage details, premium, duration, and payment period. I agree to the terms outlined in this contract and authorize the insurance company to proceed with the policy as described above.
+
+Signature: _________________________
+Date: _____________________________

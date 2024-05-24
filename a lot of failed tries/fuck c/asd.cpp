@@ -14,7 +14,7 @@
 typedef struct {
     char username[50];
     char email[100];
-    char password[65];
+    char password_hash[65];
     char role[20];
 } User;
 
@@ -69,6 +69,7 @@ int num_future_policies = 0;
 void registerUser();
 void login();
 void createPolicy();
+void createFuturePolicy();
 void addCustomer();
 void initiateClaim();
 void viewClaims();
@@ -78,12 +79,8 @@ void saveData();
 void loadData();
 void hashPassword(const char* password, char* hash);
 void collectCustomerInfo();
-void viewPolicies(int customer_id);
-void handleAdminMenu(int userIndex);
-void handleAgentMenu(int userIndex);
-void handleCustomerMenu(int userIndex);
+
 void hashPassword(const char* password, char* hash) {
-void createFuturePolicy();
     unsigned long hash_value = 5381;
     int c;
     while ((c = *password++))
@@ -95,7 +92,7 @@ int main() {
     // Initialize admin user
     strcpy(users[num_users].username, "omar");
     strcpy(users[num_users].email, "omar@example.com");
-    hashPassword("1234", users[num_users].password);
+    hashPassword("1234", users[num_users].password_hash);
     strcpy(users[num_users].role, "admin");
     num_users++; // Increment number of users
     
@@ -139,12 +136,13 @@ void registerUser() {
     char password[50];
     printf("Enter password: ");
     scanf("%s", password);
-    hashPassword(password, users[num_users].password);
+    hashPassword(password, users[num_users].password_hash);
     printf("Enter role (admin/agent/customer): ");
     scanf("%s", users[num_users].role);
     num_users++;
     printf("User registered successfully.\n");
 }
+
 void login() {
     char username[50];
     char password[50];
@@ -152,150 +150,120 @@ void login() {
     scanf("%s", username);
     printf("Enter password: ");
     scanf("%s", password);
-    char password[65];
-    hashPassword(password, password);
-
-    int i;
-    for (i = 0; i < num_users; i++) {
-        if (strcmp(users[i].username, username) == 0 && strcmp(users[i].password, password) == 0) {
+    char password_hash[65];
+    hashPassword(password, password_hash);
+    int found = 0; // Flag to indicate if user is found
+    for (int i = 0; i < num_users; i++) {
+        if (strcmp(users[i].username, username) == 0 && strcmp(users[i].password_hash, password_hash) == 0) {
+            found = 1; // User found
             printf("Login successful. Welcome, %s!\n", username);
-            if (strcmp(users[i].role, "admin") == 0) {
-                handleAdminMenu(i);
-            } else if (strcmp(users[i].role, "agent") == 0) {
-                handleAgentMenu(i);
-            } else if (strcmp(users[i].role, "customer") == 0) {
-                handleCustomerMenu(i);
-            } else {
-                printf("Unknown role. Access denied.\n");
-            }
-            return;
+            // Proceed with user-specific menu options
+            // (Admin, Agent, Customer)
+            // Implement the menu here based on user role
+            int user_choice;
+            do {
+                if (strcmp(users[i].role, "admin") == 0) {
+                    printf("Admin Menu:\n");
+                    printf("1. Register User\n");
+                    printf("2. Create Policy\n");
+                    printf("3. Add Customer\n");
+                    printf("4. Initiate Claim\n");
+                    printf("5. View Claims\n");
+                    printf("6. Generate Report\n");
+                    printf("7. Change Password\n");
+                    printf("8. Collect Customer Info\n");
+                    printf("9. Logout\n");
+                    printf("10. Create Future Policy\n");
+                } else if (strcmp(users[i].role, "agent") == 0) {
+                    printf("Agent Menu:\n");
+                    printf("1. Create Policy\n");
+                    printf("2. Add Customer\n");
+                    printf("3. Initiate Claim\n");
+                    printf("4. View Claims\n");
+                    printf("5. Change Password\n");
+                    printf("6. Collect Customer Info\n");
+                    printf("7. Logout\n");
+                } else if (strcmp(users[i].role, "customer") == 0) {
+                    printf("Customer Menu:\n");
+                    printf("1. View Policies\n");
+                    printf("2. Initiate Claim\n");
+                    printf("3. View Claims\n");
+                    printf("4. Change Password\n");
+                    printf("5. Logout\n");
+                }
+                printf("Enter your choice: ");
+                if (scanf("%d", &user_choice) != 1) {
+                    printf("Invalid choice. Please enter a number.\n");
+                    while (getchar() != '\n'); // Clear input buffer
+                    continue;
+                }
+                switch (user_choice) {
+                    case 1:
+                        if (strcmp(users[i].role, "admin") == 0) registerUser();
+                        else if (strcmp(users[i].role, "agent") == 0) createPolicy();
+                        else if (strcmp(users[i].role, "customer") == 0) viewClaims();
+                        else printf("Invalid choice.\n");
+                        break;
+                    case 2:
+                        if (strcmp(users[i].role, "admin") == 0) createPolicy();
+                        else if (strcmp(users[i].role, "agent") == 0) addCustomer();
+                        else if (strcmp(users[i].role, "customer") == 0) initiateClaim();
+                        else printf("Invalid choice.\n");
+                        break;
+                    case 3:
+                        if (strcmp(users[i].role, "admin") == 0) addCustomer();
+                        else if (strcmp(users[i].role, "agent") == 0) initiateClaim();
+                        else if (strcmp(users[i].role, "customer") == 0) viewClaims();
+                        else printf("Invalid choice.\n");
+                        break;
+                    case 4:
+                        if (strcmp(users[i].role, "admin") == 0) initiateClaim();
+                        else if (strcmp(users[i].role, "agent") == 0) viewClaims();
+                        else if (strcmp(users[i].role, "customer") == 0) changePassword(i);
+                        else printf("Invalid choice.\n");
+                        break;
+                    case 5:
+                        if (strcmp(users[i].role, "admin") == 0) viewClaims();
+                        else if (strcmp(users[i].role, "agent") == 0) changePassword(i);
+                        else if (strcmp(users[i].role, "customer") == 0) printf("Logging out.\n");
+                        else printf("Invalid choice.\n");
+                        break;
+                    case 6:
+                        if (strcmp(users[i].role, "admin") == 0) changePassword(i);
+                        else if (strcmp(users[i].role, "agent") == 0) collectCustomerInfo();
+                        else printf("Invalid choice.\n");
+                        break;
+                    case 7:
+                        if (strcmp(users[i].role, "admin") == 0) collectCustomerInfo();
+                        else if (strcmp(users[i].role, "agent") == 0) printf("Logging out.\n");
+                        else printf("Invalid choice.\n");
+                        break;
+                    case 8:
+                        if (strcmp(users[i].role, "admin") == 0) printf("Logging out.\n");
+                        else printf("Invalid choice.\n");
+                        break;
+                    case 9:
+                        if (strcmp(users[i].role, "admin") == 0) printf("Logging out.\n");
+                        else printf("Invalid choice.\n");
+                        break;
+                    case 10:
+                        if (strcmp(users[i].role, "admin") == 0) createFuturePolicy();
+                        else printf("Invalid choice.\n");
+                        break;
+                    default:
+                        printf("Invalid choice. Please try again.\n");
+                }
+            } while ((strcmp(users[i].role, "admin") == 0 && user_choice != 9) || 
+                     (strcmp(users[i].role, "agent") == 0 && user_choice != 7) || 
+                     (strcmp(users[i].role, "customer") == 0 && user_choice != 5));
+            break; // Exit for-loop if user is found and logged in
         }
     }
-    printf("Invalid username or password.\n");
-}
-
-void handleAdminMenu(int userIndex) {
-    int choice;
-    do {
-        printf("Admin Menu:\n");
-        printf("1. Register User\n");
-        printf("2. Create Policy\n");
-        printf("3. Add Customer\n");
-        printf("4. Initiate Claim\n");
-        printf("5. View Claims\n");
-        printf("6. Generate Report\n");
-        printf("7. Change Password\n");
-        printf("8. Logout\n");
-        printf("Enter your choice: ");
-        scanf("%d", &choice);
-        switch (choice) {
-            case 1:
-                registerUser();
-                break;
-            case 2:
-                createPolicy();
-                break;
-            case 3:
-                addCustomer();
-                break;
-            case 4:
-                initiateClaim();
-                break;
-            case 5:
-                viewClaims();
-                break;
-            case 6:
-                generateReport();
-                break;
-            case 7:
-                changePassword(userIndex);
-                break;
-            case 8:
-                printf("Logging out.\n");
-                break;
-            default:
-                printf("Invalid choice. Please try again.\n");
-        }
-    } while (choice != 8);
-}
-
-void handleAgentMenu(int userIndex) {
-    int choice;
-    do {
-        printf("Agent Menu:\n");
-        printf("1. Create Policy\n");
-        printf("2. Add Customer\n");
-        printf("3. Initiate Claim\n");
-        printf("4. View Claims\n");
-        printf("5. Change Password\n");
-        printf("6. Logout\n");
-        printf("Enter your choice: ");
-        scanf("%d", &choice);
-        switch (choice) {
-            case 1:
-                createPolicy();
-                break;
-            case 2:
-                addCustomer();
-                break;
-            case 3:
-                initiateClaim();
-                break;
-            case 4:
-                viewClaims();
-                break;
-            case 5:
-                changePassword(userIndex);
-                break;
-            case 6:
-                printf("Logging out.\n");
-                break;
-            default:
-                printf("Invalid choice. Please try again.\n");
-        }
-    } while (choice != 6);
-}
-
-void handleCustomerMenu(int userIndex) {
-    int customer_id;
-    for (int i = 0; i < num_customers; i++) {
-        if (strcmp(users[userIndex].username, customers[i].name) == 0) {
-            customer_id = customers[i].customer_id;
-            break;
-        }
+    if (!found) {
+        printf("Invalid username or password.\n");
     }
-
-    int choice;
-    do {
-        printf("Customer Menu:\n");
-        printf("1. View Policies\n");
-        printf("2. Initiate Claim\n");
-        printf("3. View Claims\n");
-        printf("4. Change Password\n");
-        printf("5. Logout\n");
-        printf("Enter your choice: ");
-        scanf("%d", &choice);
-        switch (choice) {
-            case 1:
-                viewPolicies(customer_id);
-                break;
-            case 2:
-                initiateClaim();
-                break;
-            case 3:
-                viewClaims();
-                break;
-            case 4:
-                changePassword(userIndex);
-                break;
-            case 5:
-                printf("Logging out.\n");
-                break;
-            default:
-                printf("Invalid choice. Please try again.\n");
-        }
-    } while (choice != 5);
 }
+
 
 void createPolicy() {
     if (num_policies >= MAX_POLICIES) {
@@ -395,12 +363,12 @@ void changePassword(int userIndex) {
     char new_password[50];
     printf("Enter old password: ");
     scanf("%s", old_password);
-    char old_password[65];
-    hashPassword(old_password, old_password);
-    if (strcmp(users[userIndex].password, old_password) == 0) {
+    char old_password_hash[65];
+    hashPassword(old_password, old_password_hash);
+    if (strcmp(users[userIndex].password_hash, old_password_hash) == 0) {
         printf("Enter new password: ");
         scanf("%s", new_password);
-        hashPassword(new_password, users[userIndex].password);
+        hashPassword(new_password, users[userIndex].password_hash);
         printf("Password changed successfully.\n");
     } else {
         printf("Incorrect old password.\n");

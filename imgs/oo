@@ -1,0 +1,90 @@
+typedef struct {
+    char username[50];
+    char password[50];
+    char role[20];
+} User;
+
+// Define the struct for Car Policy details
+typedef struct {
+    char vehicleType[50];
+    char location[50];
+    char usage[50];
+    char coverageLevel[50];
+} CarPolicy;
+
+// Define the struct for Home Policy details
+typedef struct {
+    float homeValue;
+    float rebuildingCost;
+    char location[50];
+    int homeAge;
+    char condition[50];
+    char constructionMaterials[50];
+    char coverageLevel[50];
+} HomePolicy;
+
+// Define the struct for Health Policy details
+typedef struct {
+    char geographicLocation[50];
+    char tobaccoUse[50];
+    char coverageLevel[50];
+    int familySize;
+    char healthStatus[50];
+} HealthPolicy;
+
+// Define the struct for Life Policy details
+typedef struct {
+    char healthHistory[50];
+    char lifestyle[50];
+    char occupation[50];
+    char coverageLevel[50];
+} LifePolicy;
+
+// Union for different policy types
+typedef union {
+    CarPolicy carPolicy;
+    HomePolicy homePolicy;
+    HealthPolicy healthPolicy;
+    LifePolicy lifePolicy;
+} PolicyDetails;
+
+// Define the struct for Policies
+typedef struct {
+    int policy_id;
+    char type[20]; // "car", "home", "health", "life"
+    PolicyDetails details;
+} Policy;
+
+// Define the struct for Customers
+typedef struct {
+    int customer_id;
+    char first_name[50];
+    char last_name[50];
+    char email[50];
+    char phone[20];
+    int num_policies;
+    int policy_ids[10]; // Assuming each customer can have up to 10 policies
+} Customer;
+
+// Define the struct for Claims
+typedef struct {
+    int claim_id;
+    int policy_id;
+    int customer_id;
+    char date[20];
+    char status[20];
+    char details[100];
+} Claim;
+
+// Global arrays and counters
+User users[100];
+int num_users = 0;
+
+Policy policies[100];
+int num_policies = 0;
+
+Customer customers[100];
+int num_customers = 0;
+
+Claim claims[100];
+int num_claims = 0;

@@ -1,23 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
-#define MAX_USERS 100
+
 #define MAX_POLICIES 100
 #define MAX_CUSTOMERS 100
 #define MAX_CLAIMS 100
-#define MAX_NAME_LENGTH 100
-#define MAX_ADDRESS_LENGTH 200
-#define MAX_COVERAGE_1_OPTIONS 10
+
 // Define structures
 typedef struct {
     char username[50];
     char password[50];
     char role[20];
 } User;
-
+User users[100];
+int num_users = 0;
 typedef struct {
+       char customer_name[100];
     char name[50];
     int id;
     int age;
@@ -77,8 +76,7 @@ typedef struct {
 } Claim;
 
 // Global variables
-User users[MAX_USERS];
-int num_users = 0;
+
 Policy policies[MAX_POLICIES];
 int num_policies = 0;
 CustomerRecord customers[MAX_CUSTOMERS];
@@ -115,159 +113,7 @@ void loadUsersFromCSV(FILE *file);
 void loadPoliciesFromCSV(FILE *file);
 void loadCustomersFromCSV(FILE *file);
 void loadClaimsFromCSV(FILE *file);
-typedef struct {
-    char name[MAX_NAME_LENGTH];
-    int age_1;
-    char address[MAX_ADDRESS_LENGTH];
-    char gender;
-    char insuranceType[20];
-    double cost;
-    double premium;
-    int premiumPeriod; // in months
-    struct tm startDate;
-    struct tm endDate;
-    int extraCoverage_1s[MAX_COVERAGE_1_OPTIONS];
-    int numExtraCoverage_1s;
-} Insurance;
 
-// Global variables to track the company's financials
-double totalIncome = 0.0;
-double totalExpenses = 0.0;
-
-// Expense rates per insurance type
-double homeInsuranceExpense = 1000.0;
-double carInsuranceExpense = 800.0;
-double lifeInsuranceExpense = 500.0;
-double healthInsuranceExpense = 700.0;
-
-// Additional expenses
-double taxes = 500.0;
-double payroll = 2000.0;
-double utilities = 300.0;
-double lostProfits = 1000.0;
-double advertising = 400.0;
-double rent = 1500.0;
-
-double calculatePremium(double cost, int premiumPeriod, int numExtraCoverage_1s) {
-    double extraCoverage_1Cost = 50.0 * numExtraCoverage_1s;
-    return (cost + extraCoverage_1Cost) / premiumPeriod;
-}
-
-void calculateEndDate(struct tm *startDate, int premiumPeriod, struct tm *endDate) {
-    *endDate = *startDate;
-    endDate->tm_mon += premiumPeriod;
-    mktime(endDate); // Normalize the time structure
-}
-
-void printInstallmentSchedule(struct tm startDate, int premiumPeriod, double premium) {
-    struct tm paymentDate = startDate;
-    for (int i = 0; i < premiumPeriod; ++i) {
-        paymentDate.tm_mon += 1;
-        mktime(&paymentDate);
-        printf("Installment %d: %02d-%02d-%d Amount: $%.2f\n", i + 1, paymentDate.tm_mday, paymentDate.tm_mon + 1, paymentDate.tm_year + 1900, premium);
-    }
-}
-
-void updateTotalIncomeAndExpenses(Insurance *insurance) {
-    totalIncome += (insurance->premium * insurance->premiumPeriod);
-    if (strcmp(insurance->insuranceType, "home") == 0) {
-        totalExpenses += homeInsuranceExpense;
-    } else if (strcmp(insurance->insuranceType, "car") == 0) {
-        totalExpenses += carInsuranceExpense;
-    } else if (strcmp(insurance->insuranceType, "life") == 0) {
-        totalExpenses += lifeInsuranceExpense;
-    } else if (strcmp(insurance->insuranceType, "health") == 0) {
-        totalExpenses += healthInsuranceExpense;
-    }
-    totalExpenses += taxes + payroll + utilities + lostProfits + advertising + rent;
-}
-
-double calculateNetProfit() {
-    return totalIncome - totalExpenses;
-}
-
-void inputInsuranceDetails(Insurance *insurance) {
-    printf("Enter name: ");
-    fgets(insurance->name, MAX_NAME_LENGTH, stdin);
-    insurance->name[strcspn(insurance->name, "\n")] = '\0'; // Remove newline character
-
-    printf("Enter age_1: ");
-    scanf("%d", &insurance->age_1);
-
-    printf("Enter address: ");
-    getchar(); // To consume leftover newline character
-    fgets(insurance->address, MAX_ADDRESS_LENGTH, stdin);
-    insurance->address[strcspn(insurance->address, "\n")] = '\0'; // Remove newline character
-
-    printf("Enter gender (M/F): ");
-    scanf(" %c", &insurance->gender);
-
-    printf("Enter insurance type (home/car/life/health): ");
-    scanf("%s", insurance->insuranceType);
-
-    printf("Enter cost: ");
-    scanf("%lf", &insurance->cost);
-
-    printf("Enter premium period (months): ");
-    scanf("%d", &insurance->premiumPeriod);
-
-    printf("Enter number of extra coverage_1s: ");
-    scanf("%d", &insurance->numExtraCoverage_1s);
-
-    for (int i = 0; i < insurance->numExtraCoverage_1s; ++i) {
-        printf("Enter extra coverage_1 %d: ", i + 1);
-        scanf("%d", &insurance->extraCoverage_1s[i]);
-    }
-
-    printf("Enter start date (dd mm yyyy): ");
-    int day, month, year;
-    scanf("%d %d %d", &day, &month, &year);
-    insurance->startDate.tm_mday = day;
-    insurance->startDate.tm_mon = month - 1;
-    insurance->startDate.tm_year = year - 1900;
-    insurance->startDate.tm_hour = 0;
-    insurance->startDate.tm_min = 0;
-    insurance->startDate.tm_sec = 0;
-    mktime(&insurance->startDate);
-
-    insurance->premium = calculatePremium(insurance->cost, insurance->premiumPeriod, insurance->numExtraCoverage_1s);
-    calculateEndDate(&insurance->startDate, insurance->premiumPeriod, &insurance->endDate);
-
-    // Update the company's financials
-    updateTotalIncomeAndExpenses(insurance);
-}
-
-void printInsuranceDetails(Insurance insurance) {
-    printf("\nInsurance Details:\n");
-    printf("Name: %s\n", insurance.name);
-    printf("age_1: %d\n", insurance.age_1);
-    printf("Address: %s\n", insurance.address);
-    printf("Gender: %c\n", insurance.gender);
-    printf("Insurance Type: %s\n", insurance.insuranceType);
-    printf("Cost: $%.2f\n", insurance.cost);
-    printf("Premium: $%.2f\n", insurance.premium);
-    printf("Premium Period: %d months\n", insurance.premiumPeriod);
-    printf("Start Date: %02d-%02d-%d\n", insurance.startDate.tm_mday, insurance.startDate.tm_mon + 1, insurance.startDate.tm_year + 1900);
-    printf("End Date: %02d-%02d-%d\n", insurance.endDate.tm_mday, insurance.endDate.tm_mon + 1, insurance.endDate.tm_year + 1900);
-    printf("Extra Coverage_1s: ");
-    for (int i = 0; i < insurance.numExtraCoverage_1s; ++i) {
-        printf("%d ", insurance.extraCoverage_1s[i]);
-    }
-    printf("\n");
-    printInstallmentSchedule(insurance.startDate, insurance.premiumPeriod, insurance.premium);
-}
-void run(){
-
-Insurance insurance;
-    inputInsuranceDetails(&insurance);
-    printInsuranceDetails(insurance);
-
-    printf("\nCompany Financials:\n");
-    printf("Total Income: $%.2f\n", totalIncome);
-    printf("Total Expenses: $%.2f\n", totalExpenses);
-    printf("Net Profit: $%.2f\n", calculateNetProfit());
-
-}
 int main() {
     loadData();
 strcpy(users[num_users].username,"radwa");
@@ -303,7 +149,7 @@ strcpy(users[num_users].username,"radwa");
 }
 
 void registerUser() {
-    if (num_users >= MAX_USERS) {
+    if (num_users >= 100) {
         printf("Cannot register more users.\n");
         return;
     }
@@ -318,7 +164,7 @@ void registerUser() {
     num_users++;
     printf("User registered successfully.\n");
 }
-//
+
 void login() {
     char username[50];
     char password[50];
@@ -345,7 +191,7 @@ void login() {
     }
     printf("Invalid username or password.\n");
 }
-//
+
 void handleAdminMenu(int userIndex) {
     int choice;
     do {
@@ -390,7 +236,7 @@ void handleAdminMenu(int userIndex) {
         }
     } while (choice != 8);
 }
-//
+
 void handleAgentMenu(int userIndex) {
     int choice;
     do {
@@ -427,7 +273,7 @@ void handleAgentMenu(int userIndex) {
         }
     } while (choice != 6);
 }
-//
+
 void handleCustomerMenu(int userIndex) {
     int customer_id;
     for (int i = 0; i < num_customers; i++) {
@@ -468,7 +314,7 @@ void handleCustomerMenu(int userIndex) {
         }
     } while (choice != 5);
 }
-//
+
 void createPolicy() {
     if (num_policies >= MAX_POLICIES) {
         printf("Cannot create more policies.\n");

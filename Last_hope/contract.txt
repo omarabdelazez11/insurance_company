@@ -1,0 +1,16 @@
+Formal Contract
+===============
+Name: omat
+Age: 18
+Gender: male 
+Occupation: dflnk
+Contact Info: 0202p
+Previous Insurance: 0
+Policy Type: Car Insurance
+Coverage Amount: 1000.00
+Premium: 1050.00
+Duration: 20 years
+Payment Period: monthly
+Claims Cost: 0.00
+Operating Expenses: 0.00
+Profit: 21000.00
